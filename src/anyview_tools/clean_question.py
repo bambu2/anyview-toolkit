@@ -1,6 +1,6 @@
 import re
 
-from load_text import load_text
+from src.anyview_tools.load_text import load_text
 
 
 def clean_question(filename, encoding="utf-8"):

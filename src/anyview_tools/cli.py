@@ -2,7 +2,7 @@ import random
 import string
 import time
 
-from load_text import load_text
+from src.anyview_tools.load_text import load_text
 
 try:
     import pyautogui
