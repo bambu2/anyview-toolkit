@@ -7,10 +7,16 @@ authors = [
     { name = "bambu2", email = "2672680268@qq.com" }
 ]
 requires-python = ">=3.15"
-dependencies = []
+dependencies = [
+    "pyautogui>=0.9.54",
+]
 
 [project.scripts]
 anyview-tools = "anyview_tools:main"
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
 
 [build-system]
 requires = ["uv_build>=0.13.6,<0.14.0"]
