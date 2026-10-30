@@ -6,7 +6,7 @@ from anyview_tools.load_text import load_text
 def clean_question(filename, encoding="utf-8"):
     # 1. 读取
     content = load_text(filename)
-
+    
     # 2. 删除所有 <> 内的内容（含尖括号）
     content = re.sub(r"<[^>]*>", "", content, flags=re.DOTALL)
 
