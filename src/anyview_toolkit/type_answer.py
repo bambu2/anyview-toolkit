@@ -71,16 +71,19 @@ _KEYBOARD_NEIGHBORS = _compute_neighbors(_KEYBOARD_ROWS)
 
 
 def random_wrong_char(correct):
-    candidate = _KEYBOARD_NEIGHBORS.get(correct)
+    candidate = set(_KEYBOARD_NEIGHBORS.get(correct, ()))
 
     if correct.isupper():
         candidate.add(correct.lower())
-
     if correct in _WITHOUT_SHIFT_MAP:
         candidate.add(_WITHOUT_SHIFT_MAP[correct])
 
-    return random.choice(tuple(candidate))
+    candidate.discard(correct)
 
+    if not candidate:
+        raise ValueError(f"No wrong-char candidates for {correct!r}")
+
+    return random.choice(tuple(candidate))
 
 def remove_spaces_around_symbols(text: str) -> str:
     n = len(text)
