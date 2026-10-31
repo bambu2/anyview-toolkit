@@ -1,2 +1,2 @@
 def main() -> None:
-    print("Hello from anyview-tools!")
+    print("Hello from anyview-toolkit!")

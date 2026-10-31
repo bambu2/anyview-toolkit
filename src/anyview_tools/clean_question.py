@@ -1,12 +1,13 @@
 import re
 
-from anyview_tools.load_text import load_text
+from anyview_toolkit.load_text import load_text
 
 
-def clean_question(filename, encoding="utf-8"):
+# TODO:paperclip
+def clean_question(path="question.txt", encoding="utf-8"):
     # 1. 读取
-    content = load_text(filename)
-    
+    content = load_text(path)
+
     # 2. 删除所有 <> 内的内容（含尖括号）
     content = re.sub(r"<[^>]*>", "", content, flags=re.DOTALL)
 
@@ -14,7 +15,7 @@ def clean_question(filename, encoding="utf-8"):
     content = re.sub(r"\s+", " ", content).strip()
 
     # 4. 写回原文件
-    with open(filename, "w", encoding=encoding) as f:
+    with open(path, "w", encoding=encoding) as f:
         f.write(content)
 
 

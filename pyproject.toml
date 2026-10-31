@@ -1,5 +1,5 @@
 [project]
-name = "anyview-tools"
+name = "anyview-toolkit"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,11 +8,12 @@ authors = [
 ]
 requires-python = ">=3.15"
 dependencies = [
+    "paperclip>=2.7.4",
     "pyautogui>=0.9.54",
 ]
 
 [project.scripts]
-anyview-tools = "anyview_tools.cli:main"
+anyview-toolkit = "anyview_toolkit.cli:main"
 
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
