@@ -1,7 +1,7 @@
 [project]
 name = "anyview-toolkit"
 version = "0.1.0"
-description = "Add your description here"
+description = "toolkit for Anyview"
 readme = "README.md"
 authors = [
     { name = "bambu2", email = "2672680268@qq.com" }
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-anyview-toolkit = "anyview_toolkit.cli:main"
+anyview-toolkit = "anyview_toolkit.cli:app"
 
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
