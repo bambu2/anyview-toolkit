@@ -61,22 +61,36 @@ _FINGER_GROUPS = [
 
 
 def _build_neighbors():
-    nb_all = {}
-    for r, row in enumerate(_KEYBOARD_ROWS):
+    neighbors = {}
+    rows = _KEYBOARD_ROWS
+    height = len(rows)
+
+    for r, row in enumerate(rows):
         for c, ch in enumerate(row):
             if ch == " ":
                 continue
-            nb = set()
+
+            # setdefault -> robust if the same key appears more than once
+            nb = neighbors.setdefault(ch, set())
+
             for dr in (-1, 0, 1):
                 for dc in (-1, 0, 1):
                     if dr == 0 and dc == 0:
                         continue
+
                     nr, nc = r + dr, c + dc
-                    if 0 <= nr < len(_KEYBOARD_ROWS):
-                        row2 = _KEYBOARD_ROWS[nr]
-                        if 0 <= nc < len(row2) and row2[nc] != " ":
-                            nb.add(row2[nc])
-    return nb_all
+                    if not (0 <= nr < height):
+                        continue
+
+                    adj_row = rows[nr]
+                    if not (0 <= nc < len(adj_row)):
+                        continue
+
+                    adj = adj_row[nc]
+                    if adj != " " and adj != ch:
+                        nb.add(adj)
+
+    return neighbors
 
 
 _NEIGHBORS = _build_neighbors()
