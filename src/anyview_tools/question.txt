@@ -1,1 +1,0 @@
-<code class="language-clike" data-v-159df2ba="">【<span class="token number">20231105</span>】已知n和s是系统给定的外部整型变量（不需要自行定义）。编写程序，求<span class="token number">1</span>到n之间的整数之和，并将结果存放到s。</code>

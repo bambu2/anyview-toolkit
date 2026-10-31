@@ -2,33 +2,27 @@ import random
 import string
 import time
 
-from anyview_toolkit.load_text import load_text
+import pyautogui
+import pyperclip
+from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
-try:
-    import pyautogui
-except ImportError:
-    raise SystemExit("请先安装: uv pip install pyautogui")
-
-
-# ---------------- 可调参数 ----------------
-INTRA_DELAY = (0.01, 0.02)  # 组内字符间隔（秒）——快速
-INTER_DELAY = (0.1, 0.2)  # 组间停顿（秒）——慢
-ERROR_RATE = 0.05  # 每个字符打错概率
-ERROR_PAUSE = (0.1, 0.2)  # 打错后停顿再删
-SKIP_WS_RATE = 0.8  # 移除“符号左右两侧空格”的概率（成对删除；其他空格不删）
+INTRA_GROUP_DELAY = (0.01, 0.02)
+INTER_GROUP_DELAY = (0.1, 0.2)
+WRONG_CHAR_RATE = 0.05
+FIX_CHAR_DELAY = (0.1, 0.2)
+SKIP_SPACE_RATE = 0.8  # 移除“符号左右两侧空格”的概率（成对删除；其他空格不删）
 MAX_GROUP_LEN = (3, 8)  # 超长无空白串随机切块长度范围
-FOCUS_WAIT = 1.5
-# ------------------------------------------
+COUNTDOWN_TIME = 1.5
 
 
-# ---------- 键盘邻近 / 错误字符 ----------
 _KEYBOARD_ROWS = [
     "`1234567890-=",
     " qwertyuiop[]\\",
     "  asdfghjkl;'",
     "   zxcvbnm,./",
 ]
-_SHIFT_MAP = {  # 漏按 Shift：理想 -> 实际
+
+_WITHOUT_SHIFT_MAP = {
     "!": "1",
     "@": "2",
     "#": "3",
@@ -51,6 +45,7 @@ _SHIFT_MAP = {  # 漏按 Shift：理想 -> 实际
     "?": "/",
     "~": "`",
 }
+
 _FINGER_GROUPS = [
     set("qaz1"),
     set("wsx2"),
@@ -120,8 +115,8 @@ def random_wrong_char(correct):
         if correct.isalpha():
             return correct.lower()
     elif rand < 0.90:
-        if correct in _SHIFT_MAP:
-            return _SHIFT_MAP[correct]
+        if correct in _WITHOUT_SHIFT_MAP:
+            return _WITHOUT_SHIFT_MAP[correct]
         if correct.isdigit():
             c = random.choice(string.digits)
             if c != correct:
@@ -133,13 +128,6 @@ def random_wrong_char(correct):
 
     # 兜底：没有合适的错误字符，就“不打错”
     return correct
-
-
-def is_symbol(ch: str) -> bool:
-    """判断是否为标点/符号：可打印、非字母数字、非空白。
-    中文字符 isalnum() 为 True，不会被当成符号；
-    ，。！？ 等全角标点会被当成符号。"""
-    return ch.isprintable() and not ch.isalnum() and not ch.isspace()
 
 
 def apply_space_policy(text: str) -> str:
@@ -169,12 +157,12 @@ def apply_space_policy(text: str) -> str:
             j += 1
 
         # 是否为 "空格段 + 符号 + 空格段" 模式
-        if j < n and is_symbol(text[j]) and j + 1 < n and text[j + 1] == " ":
+        if j < n and text[j] in string.punctuation and j + 1 < n and text[j + 1] == " ":
             k = j + 1
             while k < n and text[k] == " ":
                 k += 1
 
-            if random.random() < SKIP_WS_RATE:
+            if random.random() < SKIP_SPACE_RATE:
                 # 成对删除两侧空格，只留符号
                 out.append(text[j])
             else:
@@ -232,60 +220,50 @@ def type_char(ch):
 
 
 def type_with_errors(ch):
-    if random.random() < ERROR_RATE:
+    if random.random() < WRONG_CHAR_RATE:
         wrong = random_wrong_char(ch)
         if wrong and wrong != ch:
             type_char(wrong)
-            time.sleep(random.uniform(*INTRA_DELAY))
-            time.sleep(random.uniform(*ERROR_PAUSE))
+            time.sleep(random.uniform(*INTRA_GROUP_DELAY))
+            time.sleep(random.uniform(*FIX_CHAR_DELAY))
             pyautogui.press("backspace")
-            time.sleep(random.uniform(*INTRA_DELAY))
+            time.sleep(random.uniform(*INTRA_GROUP_DELAY))
     type_char(ch)
 
 
-def countdown(seconds: float, decimals: int = 1, refresh: float = 0.02):
-    if seconds <= 0:
-        print("⏰ 时间到!")
-        return
+def countdown(t: float) -> None:
+    steps = 100
+    interval = t / steps  # 每次 tick 的真实耗时，总时长 = t 秒
 
-    end = time.monotonic() + seconds
-    fmt = f"\r倒计时: {{:.{decimals}f}}s   "  # 尾部空格清掉残留字符
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TimeRemainingColumn(compact=True),
+    ) as progress:
+        task = progress.add_task(
+            description="请把焦点切到目标文本框！",
+            total=steps,
+        )
+        for _ in range(steps):
+            time.sleep(interval)
+            progress.advance(task, 1)  # 也可写 progress.update(task, advance=1)
 
-    while True:
-        left = end - time.monotonic()
-        if left <= 0:
-            break
-        print(fmt.format(left), end="", flush=True)
-        time.sleep(min(refresh, left))  # 临近结束别睡过头
 
-    print(fmt.format(0.0))  # 归零后换行
+def type_answer():
+    text = pyperclip.paste()
 
-
-def main():
-    text = load_text("answer.txt")
-
-    print(f"\n请把焦点切到目标文本框，{FOCUS_WAIT} 秒后开始……")
-    countdown(FOCUS_WAIT)
+    countdown(COUNTDOWN_TIME)
     print("开始")
 
     text = apply_space_policy(text)  # ← 先统一决定空格去留
     groups = split_into_groups(text)
-    for gi, group in enumerate(groups):
+    for i, group in enumerate(groups):
         for ch in group:
             if ch == " ":
                 type_char(ch)
-                time.sleep(random.uniform(*INTRA_DELAY))
+                time.sleep(random.uniform(*INTRA_GROUP_DELAY))
                 continue
             type_with_errors(ch)
-            time.sleep(random.uniform(*INTRA_DELAY))
-        if gi < len(groups) - 1:
-            time.sleep(random.uniform(*INTER_DELAY))
-        # 组间停顿（最后一组不停）
-        if gi < len(groups) - 1:
-            time.sleep(random.uniform(*INTER_DELAY))
-
-    print("完成")
-
-
-if __name__ == "__main__":
-    main()
+            time.sleep(random.uniform(*INTRA_GROUP_DELAY))
+        if i < len(groups) - 1:
+            time.sleep(random.uniform(*INTER_GROUP_DELAY))
