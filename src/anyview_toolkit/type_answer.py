@@ -76,12 +76,6 @@ def _build_neighbors():
                         row2 = _KEYBOARD_ROWS[nr]
                         if 0 <= nc < len(row2) and row2[nc] != " ":
                             nb.add(row2[nc])
-            if ch.isalpha():
-                nb.add(ch.swapcase())
-            nb_all[ch] = nb
-            if ch.isalpha():
-                nb_all[ch.lower()] = nb
-                nb_all[ch.upper()] = nb
     return nb_all
 
 
@@ -92,9 +86,9 @@ def _finger_typo(ch):
     low = ch.lower()
     for group in _FINGER_GROUPS:
         if low in group:
-            cand = [key for key in group if key != low]
-            if cand:
-                c = random.choice(cand)
+            candidate = [key for key in group if key != low]
+            if candidate:
+                c = random.choice(candidate)
                 return c.upper() if ch.isupper() else c
     return None
 
@@ -107,20 +101,13 @@ def random_wrong_char(correct):
 
     if rand < 0.60:
         nb = _NEIGHBORS.get(correct)
-        if nb:
-            c = random.choice(tuple(nb))
-            if c != correct:
-                return c
+        return random.choice(tuple(nb)) if nb else correct
     elif rand < 0.75:
         if correct.isalpha():
             return correct.lower()
     elif rand < 0.90:
         if correct in _WITHOUT_SHIFT_MAP:
             return _WITHOUT_SHIFT_MAP[correct]
-        if correct.isdigit():
-            c = random.choice(string.digits)
-            if c != correct:
-                return c
     else:
         f = _finger_typo(correct)
         if f and f != correct:
@@ -130,14 +117,9 @@ def random_wrong_char(correct):
     return correct
 
 
-def apply_space_policy(text: str) -> str:
+def remove_specific_space(text: str) -> str:
     """
-    在打字之前先把空格去留决定好：
-      - 只有“符号两边都有空格”的模式（如 " , " / " 。 " / "  ,  "），
-        才按 SKIP_WS_RATE 概率成对删除（两侧一起删）；
-        否则成对保留。
-      - 其他位置的普通空格一律保留。
-      - 制表符/换行等非空格空白原样保留。
+    只有符号两边都有空格才按 SKIP_SPACE_RATE 概率两侧一起删.
     """
     n = len(text)
     out = []
@@ -181,12 +163,6 @@ def apply_space_policy(text: str) -> str:
 
 
 def split_into_groups(text):
-    """
-    把文本切成"打字组"：
-      - 以空格/制表符/回车作为自然组边界（空白归到前一组末尾）
-      - 超长无空白串按随机长度再切块
-    返回 list[str]，每个元素是一组要连续快速输入的字符
-    """
     groups = []
     buf = ""
     for ch in text:
@@ -204,7 +180,7 @@ def split_into_groups(text):
     if buf:
         groups.append(buf)
     # 过滤空组
-    return [g for g in groups if g]
+    return [group for group in groups if group]
 
 
 def type_char(ch):
@@ -255,9 +231,9 @@ def type_answer():
     countdown(COUNTDOWN_TIME)
     print("开始")
 
-    text = apply_space_policy(text)  # ← 先统一决定空格去留
+    text = remove_specific_space(text)
     groups = split_into_groups(text)
-    for i, group in enumerate(groups):
+    for group in groups:
         for ch in group:
             if ch == " ":
                 type_char(ch)
@@ -265,5 +241,3 @@ def type_answer():
                 continue
             type_with_errors(ch)
             time.sleep(random.uniform(*INTRA_GROUP_DELAY))
-        if i < len(groups) - 1:
-            time.sleep(random.uniform(*INTER_GROUP_DELAY))
