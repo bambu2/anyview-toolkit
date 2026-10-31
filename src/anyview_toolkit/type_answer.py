@@ -11,7 +11,7 @@ INTER_GROUP_DELAY = (0.1, 0.2)
 WRONG_CHAR_RATE = 0.05
 FIX_CHAR_DELAY = (0.1, 0.2)
 MAX_GROUP_LEN = (3, 8)
-COUNTDOWN_TIME = 2
+COUNTDOWN_TIME = 3
 
 
 _KEYBOARD_ROWS = [
@@ -71,6 +71,9 @@ _KEYBOARD_NEIGHBORS = _compute_neighbors(_KEYBOARD_ROWS)
 
 
 def random_wrong_char(correct):
+    if not correct.isprintable():
+        return correct
+
     candidate = set(_KEYBOARD_NEIGHBORS.get(correct, ()))
 
     if correct.isupper():
@@ -84,6 +87,7 @@ def random_wrong_char(correct):
         raise ValueError(f"No wrong-char candidates for {correct!r}")
 
     return random.choice(tuple(candidate))
+
 
 def remove_spaces_around_symbols(text: str) -> str:
     n = len(text)
@@ -140,21 +144,12 @@ def split_into_groups(text):
     return [group for group in groups if group]
 
 
-def type_char(ch, interval: float):
-    if ch == "\n":
-        pyautogui.press("enter")
-    else:
-        pyautogui.write(ch, interval=interval)
-
-
-def type_with_errors(ch, interval: float):
-    if random.random() < WRONG_CHAR_RATE:
-        wrong = random_wrong_char(ch)
-        if wrong and wrong != ch:
-            type_char(wrong, interval=interval)
-            time.sleep(random.uniform(*FIX_CHAR_DELAY))
-            pyautogui.press("backspace")
-    type_char(ch, interval=interval)
+def type_error_then_fix(ch, interval: float):
+    wrong = random_wrong_char(ch)
+    if wrong and wrong != ch:
+        pyautogui.write(wrong, interval=interval)
+        time.sleep(random.uniform(*FIX_CHAR_DELAY))
+        pyautogui.press("backspace")
 
 
 def countdown(t: float) -> None:
@@ -189,8 +184,14 @@ def type_answer():
     groups = split_into_groups(text)
     for group in groups:
         for ch in group:
+            interval = random.uniform(*INTRA_GROUP_DELAY)
             if ch == " ":
-                type_char(ch, interval=random.uniform(*INTRA_GROUP_DELAY))
-                continue
-            type_with_errors(ch, interval=random.uniform(*INTRA_GROUP_DELAY))
-            time.sleep(random.uniform(*INTRA_GROUP_DELAY))
+                pyautogui.write(ch, interval=interval)
+            elif ch == "\n":
+                pyautogui.press("enter")
+            else:
+                if random.random() < WRONG_CHAR_RATE:
+                    type_error_then_fix(ch, interval=interval)
+                pyautogui.write(ch, interval=interval)
+
+        time.sleep(random.uniform(*INTER_GROUP_DELAY))
