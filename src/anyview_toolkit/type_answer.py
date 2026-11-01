@@ -125,10 +125,10 @@ def remove_spaces_around_symbols(text: str) -> str:
     return "".join(out)
 
 
-def split_into_groups(text):
+def split_into_groups(answer: str) -> list[str]:
     groups = []
     buf = ""
-    for ch in text:
+    for ch in answer:
         if ch == " ":
             buf += ch
             groups.append(buf)
@@ -154,17 +154,19 @@ def type_error_then_remove(ch, interval: float):
 
 
 def type_answer():
-    text = pyperclip.paste()
+    answer = pyperclip.paste()
 
     countdown(COUNTDOWN_TIME)
 
-    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 
-    text = "\n".join(line.lstrip() for line in text.splitlines())
+    answer = "\n".join(line.lstrip() for line in answer.splitlines())
 
-    text = remove_spaces_around_symbols(text)
+    answer = remove_spaces_around_symbols(answer)
 
-    groups = split_into_groups(text)
+    pyautogui.press("tab")
+
+    groups = split_into_groups(answer)
     for group in groups:
         for ch in group:
             interval = random.uniform(*INTRA_GROUP_DELAY)
