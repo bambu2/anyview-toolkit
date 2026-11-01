@@ -24,6 +24,7 @@ def copy_code(question: str):
     countdown(COUNTDOWN_TIME)
 
     pyautogui.hotkey("ctrl", "a")
+
     pyautogui.hotkey("ctrl", "c")
 
     code = pyperclip.paste()

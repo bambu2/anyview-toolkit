@@ -4,8 +4,8 @@ from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
 
 
 def countdown(t: float) -> None:
-    steps = 100
-    interval = t / steps  # 每次 tick 的真实耗时，总时长 = t 秒
+    steps = 10
+    interval = t / steps
 
     with Progress(
         TextColumn("[progress.description]{task.description}"),
