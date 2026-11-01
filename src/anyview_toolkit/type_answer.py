@@ -4,7 +4,8 @@ import time
 
 import pyautogui
 import pyperclip
-from rich.progress import BarColumn, Progress, TextColumn, TimeRemainingColumn
+
+from anyview_toolkit.countdown import countdown
 
 INTRA_GROUP_DELAY = (0.01, 0.02)
 INTER_GROUP_DELAY = (0.1, 0.2)
@@ -150,27 +151,6 @@ def type_error_then_remove(ch, interval: float):
         pyautogui.write(wrong, interval=interval)
         time.sleep(random.uniform(*FIX_CHAR_DELAY))
         pyautogui.press("backspace")
-
-
-def countdown(t: float) -> None:
-    steps = 100
-    interval = t / steps  # 每次 tick 的真实耗时，总时长 = t 秒
-
-    with Progress(
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TimeRemainingColumn(compact=True),
-    ) as progress:
-        task = progress.add_task(
-            description="请把焦点切到目标文本框！",
-            total=steps,
-        )
-        for _ in range(steps):
-            time.sleep(interval)
-            progress.advance(task, 1)
-
-
-# TODO: } become down arrow
 
 
 def type_answer():
