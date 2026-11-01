@@ -9,8 +9,8 @@ uv sync
 
 ## 使用
 1. 登录 Anyview，进入答题页面。
-2. 使用浏览器的检查功能选中问题。
-3. 运行 `uv run anyview-toolkit copy`，答案会被复制到剪贴板。
+2. 使用浏览器的检查功能选中问题, 复制元素。
+3. 运行 `uv run anyview-toolkit copy`，在倒计时时间内把焦点切到目标文本框，答案会被复制到剪贴板。
 4. 粘贴题目给 AI，提示词示例：“我给题目，你给答案，不用注释”。
 5. 复制答案。
 6. 运行 `uv run anyview-toolkit type`，在倒计时时间内把焦点切到目标文本框。
