@@ -144,7 +144,7 @@ def split_into_groups(text):
     return [group for group in groups if group]
 
 
-def type_error_then_fix(ch, interval: float):
+def type_error_then_remove(ch, interval: float):
     wrong = random_wrong_char(ch)
     if wrong and wrong != ch:
         pyautogui.write(wrong, interval=interval)
@@ -170,6 +170,9 @@ def countdown(t: float) -> None:
             progress.advance(task, 1)
 
 
+# TODO: } become down arrow
+
+
 def type_answer():
     text = pyperclip.paste()
 
@@ -189,9 +192,11 @@ def type_answer():
                 pyautogui.write(ch, interval=interval)
             elif ch == "\n":
                 pyautogui.press("enter")
+            elif ch == "}":
+                pyautogui.press("down")
             else:
                 if random.random() < WRONG_CHAR_RATE:
-                    type_error_then_fix(ch, interval=interval)
+                    type_error_then_remove(ch, interval=interval)
                 pyautogui.write(ch, interval=interval)
 
         time.sleep(random.uniform(*INTER_GROUP_DELAY))
