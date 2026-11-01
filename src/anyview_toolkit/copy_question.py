@@ -27,6 +27,10 @@ def copy_code(question: str):
 
     pyautogui.hotkey("ctrl", "c")
 
+    pyautogui.press("up")
+    for _ in range(3):
+        pyautogui.press("down")
+
     code = pyperclip.paste()
 
     full_question = f"{question}\n{code}"
