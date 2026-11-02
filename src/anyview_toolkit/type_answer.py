@@ -98,41 +98,6 @@ def random_wrong_char(correct):
     return random.choice(tuple(candidate))
 
 
-def remove_spaces_around_symbols(text: str) -> str:
-    n = len(text)
-    out = []
-    i = 0
-    while i < n:
-        ch = text[i]
-
-        if ch != " ":
-            out.append(ch)
-            i += 1
-            continue
-
-        # 连续空格段 [i, j)
-        j = i
-        while j < n and text[j] == " ":
-            j += 1
-
-        # 是否为 "空格段 + 符号 + 空格段" 模式
-        if j < n and text[j] in string.punctuation and j + 1 < n and text[j + 1] == " ":
-            k = j + 1
-
-            while k < n and text[k] == " ":
-                k += 1
-
-            out.append(text[j])
-            i = k
-            continue
-
-        # 普通空格（含符号只有单边空格的情况）：全部保留
-        out.extend(text[i:j])
-        i = j
-
-    return "".join(out)
-
-
 def split_into_groups(answer: str) -> list[str]:
     groups = []
     buf = ""
@@ -169,8 +134,6 @@ def type_answer():
     answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 
     answer = "\n".join(line.lstrip() for line in answer.splitlines())
-
-    answer = remove_spaces_around_symbols(answer)
 
     pyautogui.press("tab")
 
