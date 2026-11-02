@@ -47,24 +47,32 @@ _WITHOUT_SHIFT_MAP = {
 }
 
 
-def _compute_neighbors(rows):
+def _compute_neighbors(keyboard_rows):
     neighbors = {}
-    for r, row in enumerate(rows):
-        for c, ch in enumerate(row):
+    for row, keyboard_row in enumerate(keyboard_rows):
+        for col, ch in enumerate(keyboard_row):
             if ch == " ":
                 continue
-            nb = neighbors.setdefault(ch, set())
-            for dr in (-1, 0, 1):
-                for dc in (-1, 0, 1):
-                    if dr == 0 and dc == 0:
-                        continue
-                    nr, nc = r + dr, c + dc
-                    if 0 <= nr < len(rows):
-                        adj_row = rows[nr]
-                        if 0 <= nc < len(adj_row):
-                            adj = adj_row[nc]
-                            if adj != " " and adj != ch:
-                                nb.add(adj)
+            neighbor = neighbors.setdefault(ch, set())
+
+            # Vertical neighbors (same column, adjacent rows)
+            for row_offset in (-1, 1):
+                neighbor_row = row + row_offset
+                if 0 <= neighbor_row < len(keyboard_rows):
+                    adj_row = keyboard_rows[neighbor_row]
+                    if col < len(adj_row):
+                        adj = adj_row[col]
+                        if adj != " ":
+                            neighbor.add(adj)
+
+            # Horizontal neighbors (same row, adjacent columns)
+            for col_offset in (-1, 1):
+                neighbor_col = col + col_offset
+                if 0 <= neighbor_col < len(keyboard_row):
+                    adj = keyboard_row[neighbor_col]
+                    if adj != " ":
+                        neighbor.add(adj)
+
     return neighbors
 
 
