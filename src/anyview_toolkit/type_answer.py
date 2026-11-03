@@ -1,5 +1,4 @@
 import random
-import string
 import time
 
 import pyautogui
@@ -7,11 +6,11 @@ import pyperclip
 
 from anyview_toolkit.countdown import countdown
 
-INTRA_GROUP_DELAY = (0.01, 0.02)
+INTRA_GROUP_DELAY = (0.0, 0.05)
 INTER_GROUP_DELAY = (0.1, 0.2)
 WRONG_CHAR_RATE = 0.05
 FIX_CHAR_DELAY = (0.1, 0.2)
-MAX_GROUP_LEN = (3, 8)
+MAX_GROUP_LEN = (3, 6)
 COUNTDOWN_TIME = 3
 
 
