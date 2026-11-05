@@ -132,6 +132,8 @@ def type_answer():
 
     answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 
+    answer = answer.replace("\n}", "}")
+
     answer = "\n".join(line.lstrip() for line in answer.splitlines())
 
     pyautogui.press("tab")
