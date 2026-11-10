@@ -1,17 +1,21 @@
 import random
 import time
+from dataclasses import dataclass
 
 import pyautogui
 import pyperclip
 
 from anyview_toolkit.countdown import countdown
 
-INTRA_GROUP_DELAY = (0.0, 0.05)
-INTER_GROUP_DELAY = (0.1, 0.2)
-WRONG_CHAR_RATE = 0.05
-FIX_CHAR_DELAY = (0.1, 0.2)
-MAX_GROUP_LEN = (3, 6)
-COUNTDOWN_TIME = 3
+
+@dataclass(frozen=True)
+class Config:
+    intra_group_delay = (0.0, 0.05)
+    inter_group_delay = (0.1, 0.2)
+    wrong_char_rate = 0.05
+    fix_char_delay = (0.1, 0.2)
+    max_group_len = (3, 6)
+    countdown_time = 3
 
 
 _KEYBOARD_ROWS = [
@@ -107,8 +111,8 @@ def split_into_groups(answer: str) -> list[str]:
             buf = ""
         else:
             buf += ch
-            if len(buf) >= MAX_GROUP_LEN[1]:
-                cut = random.randint(*MAX_GROUP_LEN)
+            if len(buf) >= Config.max_group_len[1]:
+                cut = random.randint(*Config.max_group_len)
                 groups.append(buf[:cut])
                 buf = buf[cut:]
     if buf:
@@ -121,14 +125,14 @@ def type_error_then_remove(ch, interval: float):
     wrong = random_wrong_char(ch)
     if wrong and wrong != ch:
         pyautogui.write(wrong, interval=interval)
-        time.sleep(random.uniform(*FIX_CHAR_DELAY))
+        time.sleep(random.uniform(*Config.fix_char_delay))
         pyautogui.press("backspace")
 
 
 def type_answer():
     answer = pyperclip.paste()
 
-    countdown(COUNTDOWN_TIME)
+    countdown(Config.countdown_time)
 
     answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 
@@ -141,7 +145,7 @@ def type_answer():
     groups = split_into_groups(answer)
     for group in groups:
         for ch in group:
-            interval = random.uniform(*INTRA_GROUP_DELAY)
+            interval = random.uniform(*Config.intra_group_delay)
             if ch == " ":
                 pyautogui.write(ch, interval=interval)
             elif ch == "\n":
@@ -149,8 +153,8 @@ def type_answer():
             elif ch == "}":
                 pyautogui.press("down")
             else:
-                if random.random() < WRONG_CHAR_RATE:
+                if random.random() < Config.wrong_char_rate:
                     type_error_then_remove(ch, interval=interval)
                 pyautogui.write(ch, interval=interval)
 
-        time.sleep(random.uniform(*INTER_GROUP_DELAY))
+        time.sleep(random.uniform(*Config.inter_group_delay))

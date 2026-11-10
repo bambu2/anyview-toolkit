@@ -1,11 +1,14 @@
 import re
-
+from dataclasses import dataclass
 import pyautogui
 import pyperclip
 
 from anyview_toolkit.countdown import countdown
 
-COUNTDOWN_TIME = 3
+
+@dataclass(frozen=True)
+class Config:
+    countdown_time = 3
 
 
 def copy_question():
@@ -28,7 +31,7 @@ def first_blank_line(s: str) -> int | None:
 
 
 def copy_code(question: str):
-    countdown(COUNTDOWN_TIME)
+    countdown(Config.countdown_time)
 
     pyautogui.hotkey("ctrl", "a")
 
@@ -41,7 +44,7 @@ def copy_code(question: str):
     pyautogui.press("up")
 
     if blank_line_index is not None:
-        for _ in range(3):
+        for _ in range(blank_line_index):
             pyautogui.press("down")
 
     full_question = f"{question}\n{code}"
