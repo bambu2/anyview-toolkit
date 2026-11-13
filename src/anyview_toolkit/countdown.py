@@ -13,7 +13,7 @@ def countdown(t: float) -> None:
         TimeRemainingColumn(compact=True),
     ) as progress:
         task = progress.add_task(
-            description="请把焦点切到目标文本框！",
+            description="请把输入焦点放在目标位置！",
             total=steps,
         )
         for _ in range(steps):

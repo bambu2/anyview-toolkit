@@ -1,4 +1,5 @@
 import random
+import re
 import time
 from dataclasses import dataclass
 
@@ -136,7 +137,7 @@ def type_answer():
 
     answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 
-    answer = answer.replace("\n}", "}")
+    answer = re.sub(r"\n\s*(?=})", "", answer)
 
     answer = "\n".join(line.lstrip() for line in answer.splitlines())
 

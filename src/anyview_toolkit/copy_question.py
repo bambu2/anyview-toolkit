@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+
 import pyautogui
 import pyperclip
 
