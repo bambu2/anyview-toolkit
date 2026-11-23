@@ -11,7 +11,7 @@ class AnyviewToolkitApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Anyview Toolkit")
-        self.root.geometry("400x300")
+        self.root.geometry("480x360")
 
         self.cancel_after_id = None  # 存储 after() 返回的 ID，用于取消
         self.is_counting = False  # 标记是否正在倒计时，防止取消后仍触发任务
@@ -58,7 +58,9 @@ class AnyviewToolkitApp:
         self.is_counting = True
 
         if remaining > 0 and self.is_counting:
-            self.status_label.config(text=f"状态：{task_name} 倒计时 {remaining} 秒...")
+            self.status_label.config(
+                text=f"⏱ {remaining} 秒后执行 {task_name}", fg="blue"
+            )
             # 保存 after ID，以便后续取消
             self.cancel_after_id = self.root.after(
                 1000,
@@ -68,12 +70,13 @@ class AnyviewToolkitApp:
             # 倒计时正常结束，清除标记并执行任务
             self.is_counting = False
             self.cancel_after_id = None
+
             btn.config(text="执行中...")
-            self.status_label.config(text=f"状态：正在执行 {task_name}...")
+            self.status_label.config(text=f"状态：正在执行 {task_name}...", fg="blue")
+
             threading.Thread(
                 target=self.run_task, args=(btn, task_func), daemon=True
             ).start()
-        # 如果 is_counting 为 False，说明已被 stop_countdown 中断，不再继续
 
     def stop_countdown(self):
         """取消当前正在进行的倒计时"""
@@ -86,21 +89,21 @@ class AnyviewToolkitApp:
             # 恢复所有功能按钮为可用状态
             self.copy_button.config(state=tk.NORMAL)
             self.type_button.config(state=tk.NORMAL)
-            self.status_label.config(text="状态：倒计时已取消", fg="orange")
+            self.status_label.config(text="❌倒计时已取消", fg="orange")
 
     def run_task(self, btn, task_func):
-        """在子线程中执行实际功能"""
         try:
             task_func()
             self.root.after(0, lambda: self.reset_button(btn))
         except pyautogui.FailSafeException:
             self.root.after(
                 0,
-                lambda: self.reset_button(btn, "⚠️ 已触发安全中断（鼠标移至角落）"),
+                lambda: self.reset_button(btn, "⚠️已触发安全中断（鼠标移至屏幕角落）"),
             )
 
     def reset_button(self, btn, msg: str | None = None):
-        """恢复按钮和状态（在主线程中运行）"""
+        btn.config(state=tk.NORMAL)
+
         if btn == self.copy_button:
             btn.config(text="复制题目")
         elif btn == self.type_button:
@@ -109,7 +112,7 @@ class AnyviewToolkitApp:
         if msg:
             self.status_label.config(text=msg, fg="orange" if "⚠️" in msg else "red")
         else:
-            self.status_label.config(text="状态：执行完毕！", fg="green")
+            self.status_label.config(text="✅执行完毕！", fg="green")
 
 
 def main():
