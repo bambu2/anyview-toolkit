@@ -6,8 +6,6 @@ from dataclasses import dataclass
 import pyautogui
 import pyperclip
 
-from anyview_toolkit.countdown import countdown
-
 
 @dataclass(frozen=True)
 class Config:
@@ -16,7 +14,7 @@ class Config:
     wrong_char_rate = 0.05
     fix_char_delay = (0.1, 0.2)
     max_group_len = (3, 6)
-    countdown_time = 3
+
 
 
 _KEYBOARD_ROWS = [
@@ -132,8 +130,6 @@ def type_error_then_remove(ch, interval: float):
 
 def type_answer():
     answer = pyperclip.paste()
-
-    countdown(Config.countdown_time)
 
     answer = answer.replace("\r\n", "\n").replace("\r", "\n")
 

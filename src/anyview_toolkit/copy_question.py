@@ -1,15 +1,7 @@
 import re
-from dataclasses import dataclass
 
 import pyautogui
 import pyperclip
-
-from anyview_toolkit.countdown import countdown
-
-
-@dataclass(frozen=True)
-class Config:
-    countdown_time = 3
 
 
 def copy_question():
@@ -32,7 +24,6 @@ def first_blank_line(s: str) -> int | None:
 
 
 def copy_code(question: str):
-    countdown(Config.countdown_time)
 
     pyautogui.hotkey("ctrl", "a")
 
