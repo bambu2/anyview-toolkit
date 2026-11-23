@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-anyview-toolkit = "anyview_toolkit.cli:app"
+anyview-toolkit = "anyview_toolkit.main:main"
 
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
