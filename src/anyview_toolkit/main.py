@@ -13,8 +13,10 @@ class AnyviewToolkitApp:
         self.root.title("Anyview Toolkit")
         self.root.geometry("480x360")
 
-        self.cancel_after_id = None  # 存储 after() 返回的 ID，用于取消
-        self.is_counting = False  # 标记是否正在倒计时，防止取消后仍触发任务
+        self.cancel_after_id = None
+        self.is_counting = False
+
+        self._idle_after_id = None
 
         self.copy_button = tk.Button(
             root,
@@ -113,6 +115,13 @@ class AnyviewToolkitApp:
             self.status_label.config(text=msg, fg="orange" if "⚠️" in msg else "red")
         else:
             self.status_label.config(text="✅执行完毕！", fg="green")
+
+        # 1 秒后自动还原为“状态：空闲”
+        if hasattr(self, "_idle_after_id") and self._idle_after_id is not None:
+            self.root.after_cancel(self._idle_after_id)
+        self._idle_after_id = self.root.after(
+            1000, lambda: self.status_label.config(text="状态：空闲", fg="blue")
+        )
 
 
 def main():
